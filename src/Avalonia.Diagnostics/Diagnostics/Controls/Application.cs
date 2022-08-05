@@ -6,7 +6,7 @@ using App = Avalonia.Application;
 namespace Avalonia.Diagnostics.Controls
 {
     class Application : AvaloniaObject
-       , Input.ICloseable
+       , Input.ICloseable, IDisposable
 
     {
         private readonly App _application;
@@ -14,6 +14,9 @@ namespace Avalonia.Diagnostics.Controls
             ?? Version.Parse("0.0.00");
         public event EventHandler? Closed;
 
+        public static readonly StyledProperty<ThemeVariant> ThemeProperty =
+            ThemeControl.ThemeVariantProperty.AddOwner<Application>();
+        
         public Application(App application)
         {
             _application = application;
@@ -34,6 +37,9 @@ namespace Avalonia.Diagnostics.Controls
                 Lifetimes.ISingleViewApplicationLifetime single => (single.MainView as VisualTree.IVisual)?.VisualRoot?.Renderer,
                 _ => null
             };
+
+            ThemeVariant = application.ThemeVariant;
+            _application.ThemeVariantChanged += ApplicationOnThemeChanged;
         }
 
         internal App Instance => _application;
@@ -115,5 +121,32 @@ namespace Avalonia.Diagnostics.Controls
         /// Gets the root of the visual tree, if the control is attached to a visual tree.
         /// </summary>
         internal Rendering.IRenderer? RendererRoot { get; }
+        
+        /// <inheritdoc cref="Avalonia.Application.ThemeVariant" />
+        public ThemeVariant ThemeVariant
+        {
+            get => GetValue(ThemeProperty);
+            set => SetValue(ThemeProperty, value);
+        }
+
+        public void Dispose()
+        {
+            _application.ThemeVariantChanged -= ApplicationOnThemeChanged;
+        }
+
+        protected override void OnPropertyChanged(AvaloniaPropertyChangedEventArgs change)
+        {
+            base.OnPropertyChanged(change);
+
+            if (change.Property == ThemeProperty)
+            {
+                _application.ThemeVariant = change.GetNewValue<ThemeVariant>();
+            }
+        }
+        
+        private void ApplicationOnThemeChanged(object? sender, EventArgs e)
+        {
+            ThemeVariant = _application.ThemeVariant;
+        }
     }
 }

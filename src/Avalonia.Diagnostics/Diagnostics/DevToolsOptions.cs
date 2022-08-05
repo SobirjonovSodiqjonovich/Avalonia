@@ -43,8 +43,8 @@ namespace Avalonia.Diagnostics
           = Convetions.DefaultScreenshotHandler;
 
         /// <summary>
-        /// Gets or sets whether DevTools should use the dark mode theme
+        /// Gets or sets whether DevTools theme.
         /// </summary>
-        public bool UseDarkMode { get; set; }
+        public ThemeVariant? ThemeVariant { get; set; }
     }
 }

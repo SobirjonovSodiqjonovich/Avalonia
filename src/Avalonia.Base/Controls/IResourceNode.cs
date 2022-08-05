@@ -1,5 +1,4 @@
-﻿using System;
-using Avalonia.Metadata;
+﻿using Avalonia.Metadata;
 
 namespace Avalonia.Controls
 {
@@ -23,6 +22,7 @@ namespace Avalonia.Controls
         /// Tries to find a resource within the object.
         /// </summary>
         /// <param name="key">The resource key.</param>
+        /// <param name="theme">Theme used to select theme dictionary.</param>
         /// <param name="value">
         /// When this method returns, contains the value associated with the specified key,
         /// if the key is found; otherwise, null.
@@ -30,6 +30,6 @@ namespace Avalonia.Controls
         /// <returns>
         /// True if the resource if found, otherwise false.
         /// </returns>
-        bool TryGetResource(object key, out object? value);
+        bool TryGetResource(object key, ThemeVariant? theme, out object? value);
     }
 }

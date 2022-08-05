@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Collections.Specialized;
 using System.Linq;
 using Avalonia.Collections;
 using Avalonia.Controls.Templates;
@@ -15,6 +16,7 @@ namespace Avalonia.Controls
         private Dictionary<object, object?>? _inner;
         private IResourceHost? _owner;
         private AvaloniaList<IResourceProvider>? _mergedDictionaries;
+        private AvaloniaDictionary<ThemeVariant, IResourceProvider>? _themeDictionary;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="ResourceDictionary"/> class.
@@ -88,6 +90,34 @@ namespace Avalonia.Controls
             }
         }
 
+        public IDictionary<ThemeVariant, IResourceProvider> ThemeDictionaries
+        {
+            get
+            {
+                if (_themeDictionary == null)
+                {
+                    _themeDictionary = new AvaloniaDictionary<ThemeVariant, IResourceProvider>();
+                    _themeDictionary.ForEachItem(
+                        x =>
+                        {
+                            if (Owner is object)
+                            {
+                                x.AddOwner(Owner);
+                            }
+                        },
+                        x =>
+                        {
+                            if (Owner is object)
+                            {
+                                x.RemoveOwner(Owner);
+                            }
+                        },
+                        () => throw new NotSupportedException("Dictionary reset not supported"));
+                }
+                return _themeDictionary;
+            }
+        }
+
         bool IResourceNode.HasResources
         {
             get
@@ -152,16 +182,31 @@ namespace Avalonia.Controls
             return false;
         }
 
-        public bool TryGetResource(object key, out object? value)
+        public bool TryGetResource(object key, ThemeVariant? theme, out object? value)
         {
             if (TryGetValue(key, out value))
                 return true;
+
+            if (_themeDictionary is not null && theme is not null)
+            {
+                if (_themeDictionary.TryGetValue(theme, out var themeResourceProvider)
+                    && themeResourceProvider.TryGetResource(key, theme, out value))
+                {
+                    return true;
+                }
+                if (theme.InheritVariant is {} themeInherit
+                    && _themeDictionary.TryGetValue(themeInherit, out themeResourceProvider)
+                    && themeResourceProvider.TryGetResource(key, theme, out value))
+                {
+                    return true;
+                }
+            }
 
             if (_mergedDictionaries != null)
             {
                 for (var i = _mergedDictionaries.Count - 1; i >= 0; --i)
                 {
-                    if (_mergedDictionaries[i].TryGetResource(key, out value))
+                    if (_mergedDictionaries[i].TryGetResource(key, theme, out value))
                     {
                         return true;
                     }
@@ -256,6 +301,14 @@ namespace Avalonia.Controls
                     hasResources |= i.HasResources;
                 }
             }
+            if (_themeDictionary is object)
+            {
+                foreach (var i in _themeDictionary.Values)
+                {
+                    i.AddOwner(owner);
+                    hasResources |= i.HasResources;
+                }
+            }
 
             if (hasResources)
             {
@@ -276,6 +329,14 @@ namespace Avalonia.Controls
                 if (_mergedDictionaries is object)
                 {
                     foreach (var i in _mergedDictionaries)
+                    {
+                        i.RemoveOwner(owner);
+                        hasResources |= i.HasResources;
+                    }
+                }
+                if (_themeDictionary is object)
+                {
+                    foreach (var i in _themeDictionary.Values)
                     {
                         i.RemoveOwner(owner);
                         hasResources |= i.HasResources;

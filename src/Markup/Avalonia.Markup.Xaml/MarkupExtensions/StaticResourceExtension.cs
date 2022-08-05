@@ -26,6 +26,7 @@ namespace Avalonia.Markup.Xaml.MarkupExtensions
         {
             var stack = serviceProvider.GetService<IAvaloniaXamlIlParentStackProvider>();
             var provideTarget = serviceProvider.GetService<IProvideValueTarget>();
+            var appTheme = AvaloniaLocator.Current.GetService<IApplicationThemeHost>()?.ThemeVariant;
 
             var targetType = provideTarget.TargetProperty switch
             {
@@ -45,9 +46,12 @@ namespace Avalonia.Markup.Xaml.MarkupExtensions
             // which might be able to give us the resource.
             foreach (var parent in stack.Parents)
             {
-                if (parent is IResourceNode node && node.TryGetResource(ResourceKey, out var value))
+                if (parent is IResourceNode node)
                 {
-                    return ColorToBrushConverter.Convert(value, targetType);
+                    if (node.TryGetResource(ResourceKey, appTheme, out var value))
+                    {
+                        return ColorToBrushConverter.Convert(value, targetType);
+                    }
                 }
 
                 // HACK: Temporary fix for #8678. Hard-coded to only work for the DevTools main

@@ -1,8 +1,8 @@
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
+
 using Avalonia.Automation.Peers;
-using Avalonia.Controls.Documents;
 using Avalonia.Controls.Primitives;
 using Avalonia.Controls.Templates;
 using Avalonia.Input;
@@ -172,6 +172,9 @@ namespace Avalonia.Controls
             get => GetValue(FlowDirectionProperty);
             set => SetValue(FlowDirectionProperty, value);
         }
+
+        ThemeVariant IThemeStyleable.ThemeVariant => GetValue(ThemeControl.ThemeVariantProperty);
+        public event EventHandler? ThemeVariantChanged;
 
         /// <summary>
         /// Occurs when the user has completed a context input gesture, such as a right-click.
@@ -547,6 +550,10 @@ namespace Avalonia.Controls
                         child.InvalidateMirrorTransform();
                     }
                 }
+            }
+            else if (change.Property == ThemeControl.ThemeVariantProperty)
+            {
+                ThemeVariantChanged?.Invoke(this, EventArgs.Empty);
             }
         }
 

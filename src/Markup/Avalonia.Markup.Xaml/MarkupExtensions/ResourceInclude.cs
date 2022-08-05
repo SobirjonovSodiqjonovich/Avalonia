@@ -16,6 +16,32 @@ namespace Avalonia.Markup.Xaml.MarkupExtensions
         private bool _isLoading;
 
         /// <summary>
+        /// Initializes a new instance of the <see cref="ResourceInclude"/> class.
+        /// </summary>
+        public ResourceInclude()
+        {
+            
+        }
+        
+        /// <summary>
+        /// Initializes a new instance of the <see cref="ResourceInclude"/> class.
+        /// </summary>
+        /// <param name="baseUri">The base URL for the XAML context.</param>
+        public ResourceInclude(Uri baseUri)
+        {
+            _baseUri = baseUri;
+        }
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="ResourceInclude"/> class.
+        /// </summary>
+        /// <param name="serviceProvider">The XAML service provider.</param>
+        public ResourceInclude(IServiceProvider serviceProvider)
+        {
+            _baseUri = serviceProvider.GetContextBaseUri();
+        }
+        
+        /// <summary>
         /// Gets the loaded resource dictionary.
         /// </summary>
         public IResourceDictionary Loaded
@@ -47,12 +73,12 @@ namespace Avalonia.Markup.Xaml.MarkupExtensions
             add => Loaded.OwnerChanged += value;
             remove => Loaded.OwnerChanged -= value;
         }
-
-        bool IResourceNode.TryGetResource(object key, out object? value)
+        
+        public bool TryGetResource(object key, ThemeVariant? theme, out object? value)
         {
             if (!_isLoading)
             {
-                return Loaded.TryGetResource(key, out value);
+                return Loaded.TryGetResource(key, theme, out value);
             }
 
             value = null;
@@ -65,7 +91,7 @@ namespace Avalonia.Markup.Xaml.MarkupExtensions
         public ResourceInclude ProvideValue(IServiceProvider serviceProvider)
         {
             var tdc = (ITypeDescriptorContext)serviceProvider;
-            _baseUri = tdc?.GetContextBaseUri();
+            _baseUri ??= tdc?.GetContextBaseUri();
             return this;
         }
     }

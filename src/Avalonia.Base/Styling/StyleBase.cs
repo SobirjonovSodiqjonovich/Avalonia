@@ -63,6 +63,7 @@ namespace Avalonia.Styling
         public IList<IAnimation> Animations => _animations ??= new List<IAnimation>();
 
         bool IResourceNode.HasResources => _resources?.Count > 0;
+
         IReadOnlyList<IStyle> IStyle.Children => (IReadOnlyList<IStyle>?)_children ?? Array.Empty<IStyle>();
 
         internal bool HasSettersOrAnimations => _setters?.Count > 0 || _animations?.Count > 0;
@@ -74,10 +75,11 @@ namespace Avalonia.Styling
 
         public abstract SelectorMatchResult TryAttach(IStyleable target, object? host);
 
-        public bool TryGetResource(object key, out object? result)
+        /// <inheritdoc/>
+        public bool TryGetResource(object key, ThemeVariant? theme, out object? result)
         {
             result = null;
-            return _resources?.TryGetResource(key, out result) ?? false;
+            return _resources?.TryGetResource(key, theme, out result) ?? false;
         }
 
         internal void Attach(IStyleable target, IStyleActivator? activator)

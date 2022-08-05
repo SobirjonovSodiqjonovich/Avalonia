@@ -180,7 +180,8 @@ namespace Avalonia.Controls
         public static readonly RoutedEvent<RoutedEventArgs> WindowOpenedEvent =
             RoutedEvent.Register<Window, RoutedEventArgs>("WindowOpened", RoutingStrategies.Direct);
 
-
+        public static readonly StyledProperty<ThemeVariant> ThemeVariantProperty =
+            ThemeControl.ThemeVariantProperty.AddOwner<Application>();
 
         private readonly NameScope _nameScope = new NameScope();
         private object? _dialogResult;
@@ -444,6 +445,12 @@ namespace Avalonia.Controls
             {
                 PlatformImpl?.Move(value);
             }
+        }
+
+        public ThemeVariant ThemeVariant
+        {
+            get => GetValue(ThemeVariantProperty);
+            set => SetValue(ThemeVariantProperty, value);
         }
 
         /// <summary>

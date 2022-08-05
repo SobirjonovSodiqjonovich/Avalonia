@@ -13,5 +13,10 @@ namespace Avalonia.Controls
         /// Gets a collection of child resource dictionaries.
         /// </summary>
         IList<IResourceProvider> MergedDictionaries { get; }
+
+        /// <summary>
+        /// Gets a collection of merged resource dictionaries that are specifically keyed and composed to address theme scenarios.
+        /// </summary>
+        IDictionary<ThemeVariant, IResourceProvider> ThemeDictionaries { get; }
     }
 }

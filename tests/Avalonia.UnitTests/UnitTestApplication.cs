@@ -57,6 +57,7 @@ namespace Avalonia.UnitTests
                 .Bind<IFocusManager>().ToConstant(Services.FocusManager)
                 .Bind<IGlobalClock>().ToConstant(Services.GlobalClock)
                 .BindToSelf<IGlobalStyles>(this)
+                .BindToSelf<IApplicationThemeHost>(this)
                 .Bind<IInputManager>().ToConstant(Services.InputManager)
                 .Bind<IKeyboardDevice>().ToConstant(Services.KeyboardDevice?.Invoke())
                 .Bind<IKeyboardNavigationHandler>().ToConstant(Services.KeyboardNavigation)
@@ -71,13 +72,9 @@ namespace Avalonia.UnitTests
                 .Bind<IStyler>().ToConstant(Services.Styler)
                 .Bind<IWindowingPlatform>().ToConstant(Services.WindowingPlatform)
                 .Bind<PlatformHotkeyConfiguration>().ToSingleton<PlatformHotkeyConfiguration>();
+            
             var theme = Services.Theme?.Invoke();
-
-            if (theme is Styles styles)
-            {
-                Styles.AddRange(styles);
-            }
-            else if (theme is not null)
+            if (theme is not null)
             {
                 Styles.Add(theme);
             }

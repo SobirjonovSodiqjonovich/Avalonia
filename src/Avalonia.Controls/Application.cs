@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Reactive.Concurrency;
 using System.Threading;
+
 using Avalonia.Animation;
 using Avalonia.Controls;
 using Avalonia.Controls.ApplicationLifetimes;
@@ -30,7 +31,7 @@ namespace Avalonia
     /// method.
     /// - Tracks the lifetime of the application.
     /// </remarks>
-    public class Application : AvaloniaObject, IDataContextProvider, IGlobalDataTemplates, IGlobalStyles, IResourceHost, IApplicationPlatformEvents
+    public class Application : AvaloniaObject, IDataContextProvider, IGlobalDataTemplates, IGlobalStyles, IApplicationThemeHost, IApplicationPlatformEvents
     {
         /// <summary>
         /// The application-global data templates.
@@ -52,10 +53,18 @@ namespace Avalonia
         public static readonly StyledProperty<object?> DataContextProperty =
             StyledElement.DataContextProperty.AddOwner<Application>();
 
+        /// <inheritdoc cref="ThemeControl.ThemeVariantProperty" />
+        public static readonly StyledProperty<ThemeVariant> ThemeVariantProperty =
+            ThemeControl.ThemeVariantProperty.AddOwner<Application>();
+
         /// <inheritdoc/>
         public event EventHandler<ResourcesChangedEventArgs>? ResourcesChanged;
 
-        public event EventHandler<UrlOpenedEventArgs>? UrlsOpened; 
+        /// <inheritdoc/>
+        public event EventHandler<UrlOpenedEventArgs>? UrlsOpened;
+
+        /// <inheritdoc/>
+        public event EventHandler? ThemeVariantChanged;
 
         /// <summary>
         /// Creates an instance of the <see cref="Application"/> class.
@@ -76,6 +85,13 @@ namespace Avalonia
         {
             get { return GetValue(DataContextProperty); }
             set { SetValue(DataContextProperty, value); }
+        }
+
+        /// <inheritdoc cref="ThemeControl.ThemeVariant" />
+        public ThemeVariant ThemeVariant
+        {
+            get => GetValue(ThemeVariantProperty);
+            set => SetValue(ThemeVariantProperty, value);
         }
 
         /// <summary>
@@ -194,11 +210,11 @@ namespace Avalonia
         public virtual void Initialize() { }
 
         /// <inheritdoc/>
-        bool IResourceNode.TryGetResource(object key, out object? value)
+        public bool TryGetResource(object key, ThemeVariant? theme, out object? value)
         {
             value = null;
-            return (_resources?.TryGetResource(key, out value) ?? false) ||
-                   Styles.TryGetResource(key, out value);
+            return (_resources?.TryGetResource(key, theme, out value) ?? false) ||
+                   Styles.TryGetResource(key, theme, out value);
         }
 
         void IResourceHost.NotifyHostedResourcesChanged(ResourcesChangedEventArgs e)
@@ -229,6 +245,7 @@ namespace Avalonia
                 .Bind<IAccessKeyHandler>().ToTransient<AccessKeyHandler>()
                 .Bind<IGlobalDataTemplates>().ToConstant(this)
                 .Bind<IGlobalStyles>().ToConstant(this)
+                .Bind<IApplicationThemeHost>().ToConstant(this)
                 .Bind<IFocusManager>().ToConstant(FocusManager)
                 .Bind<IInputManager>().ToConstant(InputManager)
                 .Bind<IKeyboardNavigationHandler>().ToTransient<KeyboardNavigationHandler>()
@@ -294,6 +311,15 @@ namespace Avalonia
             get => _name;
             set => SetAndRaise(NameProperty, ref _name, value);
         }
-        
+
+        protected override void OnPropertyChanged(AvaloniaPropertyChangedEventArgs change)
+        {
+            base.OnPropertyChanged(change);
+
+            if (change.Property == ThemeVariantProperty)
+            {
+                ThemeVariantChanged?.Invoke(this, EventArgs.Empty);
+            }
+        }
     }
 }

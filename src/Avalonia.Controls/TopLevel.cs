@@ -61,6 +61,10 @@ namespace Avalonia.Controls
         public static readonly StyledProperty<WindowTransparencyLevel> TransparencyLevelHintProperty =
             AvaloniaProperty.Register<TopLevel, WindowTransparencyLevel>(nameof(TransparencyLevelHint), WindowTransparencyLevel.None);
 
+        /// <inheritdoc cref="ThemeControl.ThemeVariantProperty" />
+        public static readonly StyledProperty<ThemeVariant> ThemeVariantProperty =
+            ThemeControl.ThemeVariantProperty.AddOwner<Application>();
+
         /// <summary>
         /// Defines the <see cref="ActualTransparencyLevel"/> property.
         /// </summary>
@@ -86,6 +90,7 @@ namespace Avalonia.Controls
         private readonly IKeyboardNavigationHandler? _keyboardNavigationHandler;
         private readonly IPlatformRenderInterface? _renderInterface;
         private readonly IGlobalStyles? _globalStyles;
+        private readonly IApplicationThemeHost? _applicationThemeHost;
         private readonly PointerOverPreProcessor? _pointerOverPreProcessor;
         private readonly IDisposable? _pointerOverPreProcessorSubscription;
         private Size _clientSize;
@@ -151,6 +156,7 @@ namespace Avalonia.Controls
             _keyboardNavigationHandler = TryGetService<IKeyboardNavigationHandler>(dependencyResolver);
             _renderInterface = TryGetService<IPlatformRenderInterface>(dependencyResolver);
             _globalStyles = TryGetService<IGlobalStyles>(dependencyResolver);
+            _applicationThemeHost = TryGetService<IApplicationThemeHost>(dependencyResolver);
 
             Renderer = impl.CreateRenderer(this);
 
@@ -180,6 +186,11 @@ namespace Avalonia.Controls
             {
                 _globalStyles.GlobalStylesAdded += ((IStyleHost)this).StylesAdded;
                 _globalStyles.GlobalStylesRemoved += ((IStyleHost)this).StylesRemoved;
+            }
+            if (_applicationThemeHost is { })
+            {
+                ThemeVariant = _applicationThemeHost.ThemeVariant;
+                _applicationThemeHost.ThemeVariantChanged += GlobalThemeVariantChanged;
             }
 
             styler?.ApplyStyles(this);
@@ -263,6 +274,13 @@ namespace Avalonia.Controls
         {
             get => GetValue(TransparencyBackgroundFallbackProperty);
             set => SetValue(TransparencyBackgroundFallbackProperty, value);
+        }
+
+        /// <inheritdoc cref="ThemeControl.ThemeVariant" />
+        public ThemeVariant ThemeVariant
+        {
+            get => GetValue(ThemeVariantProperty);
+            set => SetValue(ThemeVariantProperty, value);
         }
 
         public ILayoutManager LayoutManager
@@ -383,6 +401,10 @@ namespace Avalonia.Controls
             {
                 _globalStyles.GlobalStylesAdded -= ((IStyleHost)this).StylesAdded;
                 _globalStyles.GlobalStylesRemoved -= ((IStyleHost)this).StylesRemoved;
+            }
+            if (_applicationThemeHost is { })
+            {
+                _applicationThemeHost.ThemeVariantChanged -= GlobalThemeVariantChanged;
             }
 
             Renderer?.Dispose();
@@ -536,6 +558,11 @@ namespace Avalonia.Controls
             }
 
             _inputManager?.ProcessInput(e);
+        }
+
+        private void GlobalThemeVariantChanged(object? sender, EventArgs e)
+        {
+            ThemeVariant = _applicationThemeHost!.ThemeVariant;
         }
 
         private void SceneInvalidated(object? sender, SceneInvalidatedEventArgs e)
