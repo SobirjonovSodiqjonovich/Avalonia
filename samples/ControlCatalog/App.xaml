@@ -7,11 +7,35 @@
              x:Class="ControlCatalog.App">
   <Application.Resources>
     <ResourceDictionary>
+      <ResourceDictionary.ThemeDictionaries>
+        <ResourceDictionary x:Key="Light">
+          <Color x:Key="CatalogBaseLowColor">#33000000</Color>
+          <Color x:Key="CatalogBaseMediumColor">#99000000</Color>
+          <Color x:Key="CatalogChromeMediumColor">#FFE6E6E6</Color>
+          <Color x:Key="CatalogBaseHighColor">#FF000000</Color>
+        </ResourceDictionary>
+        <ResourceDictionary x:Key="Dark">
+          <Color x:Key="CatalogBaseLowColor">#33FFFFFF</Color>
+          <Color x:Key="CatalogBaseMediumColor">#99FFFFFF</Color>
+          <Color x:Key="CatalogChromeMediumColor">#FF1F1F1F</Color>
+          <Color x:Key="CatalogBaseHighColor">#FFFFFFFF</Color>
+        </ResourceDictionary>
+      </ResourceDictionary.ThemeDictionaries>
       <ResourceDictionary.MergedDictionaries>
         <ResourceInclude Source="avares://ControlSamples/HamburgerMenu/HamburgerMenu.xaml" />
       </ResourceDictionary.MergedDictionaries>
+      
+      <!-- For simplicity, add fluent resources here again, so simple theme can also use it -->
+      <Color x:Key="SystemAccentColor">#FF0078D7</Color>
+      <Color x:Key="SystemAccentColorDark1">#FF005A9E</Color>
+      <Color x:Key="SystemAccentColorDark2">#FF004275</Color>
+      <Color x:Key="SystemAccentColorDark3">#FF002642</Color>
+      <Color x:Key="SystemAccentColorLight1">#FF429CE3</Color>
+      <Color x:Key="SystemAccentColorLight2">#FF76B9ED</Color>
+      <Color x:Key="SystemAccentColorLight3">#FFA6D8FF</Color>
     </ResourceDictionary>
   </Application.Resources>
+
   <Application.Styles>
     <Style Selector="TextBlock.h1, TextBlock.h2, TextBlock.h3">
       <Setter Property="TextWrapping" Value="Wrap" />
@@ -37,6 +61,7 @@
       <Setter Property="FontSize" Value="12" />
     </Style>
   </Application.Styles>
+
   <TrayIcon.Icons>
     <TrayIcons>
       <TrayIcon Icon="/Assets/test_icon.ico" ToolTipText="Avalonia Tray Icon ToolTip">

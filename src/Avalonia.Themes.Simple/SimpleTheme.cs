@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using Avalonia.Controls;
 using Avalonia.Markup.Xaml;
+using Avalonia.Markup.Xaml.MarkupExtensions;
 using Avalonia.Markup.Xaml.Styling;
 using Avalonia.Styling;
 #nullable enable
@@ -10,15 +11,9 @@ namespace Avalonia.Themes.Simple
 {
     public class SimpleTheme : AvaloniaObject, IStyle, IResourceProvider
     {
-        public static readonly StyledProperty<SimpleThemeMode> ModeProperty =
-        AvaloniaProperty.Register<SimpleTheme, SimpleThemeMode>(nameof(Mode));
-
         private readonly Uri _baseUri;
         private bool _isLoading;
         private IStyle? _loaded;
-        private Styles _sharedStyles = new();
-        private Styles _simpleDark = new();
-        private Styles _simpleLight = new();
         /// <summary>
         /// Initializes a new instance of the <see cref="SimpleTheme"/> class.
         /// </summary>
@@ -26,7 +21,6 @@ namespace Avalonia.Themes.Simple
         public SimpleTheme(Uri? baseUri = null)
         {
             _baseUri = baseUri ?? new Uri("avares://Avalonia.Themes.Simple/");
-            InitStyles(_baseUri);
         }
 
         /// <summary>
@@ -41,7 +35,6 @@ namespace Avalonia.Themes.Simple
                 throw new Exception("There is no service object of type IUriContext!");
             }
             _baseUri = ((IUriContext)service).BaseUri;
-            InitStyles(_baseUri);
         }
 
         public event EventHandler? OwnerChanged
@@ -74,29 +67,25 @@ namespace Avalonia.Themes.Simple
                 {
                     _isLoading = true;
 
-                    if (Mode == SimpleThemeMode.Light)
+                    var style = new Styles();
+                    style.Resources.MergedDictionaries.Add(new ResourceInclude(_baseUri)
                     {
-                        _loaded = new Styles { _sharedStyles, _simpleLight };
-                    }
-                    else if (Mode == SimpleThemeMode.Dark)
+                        Source = new Uri("avares://Avalonia.Themes.Simple/Accents/Base.xaml")
+                    });
+                    style.Add(new StyleInclude(_baseUri)
                     {
-                        _loaded = new Styles { _sharedStyles, _simpleDark };
-                    }
+                        Source = new Uri("avares://Avalonia.Themes.Simple/Controls/SimpleControls.xaml")
+                    });
+
+                    _loaded = style;
+
                     _isLoading = false;
                 }
 
                 return _loaded!;
             }
         }
-
-        /// <summary>
-        /// Gets or sets the mode of the fluent theme (light, dark).
-        /// </summary>
-        public SimpleThemeMode Mode
-        {
-            get => GetValue(ModeProperty);
-            set => SetValue(ModeProperty, value);
-        }
+        
         public IResourceHost? Owner => (Loaded as IResourceProvider)?.Owner;
 
         void IResourceProvider.AddOwner(IResourceHost owner) => (Loaded as IResourceProvider)?.AddOwner(owner);
@@ -105,62 +94,15 @@ namespace Avalonia.Themes.Simple
 
         public SelectorMatchResult TryAttach(IStyleable target, object? host) => Loaded.TryAttach(target, host);
 
-        public bool TryGetResource(object key, out object? value)
+        public bool TryGetResource(object key, ThemeVariant? theme, out object? value)
         {
             if (!_isLoading && Loaded is IResourceProvider p)
             {
-                return p.TryGetResource(key, out value);
+                return p.TryGetResource(key, theme, out value);
             }
 
             value = null;
             return false;
         }
-
-        protected override void OnPropertyChanged(AvaloniaPropertyChangedEventArgs change)
-        {
-            base.OnPropertyChanged(change);
-            if (change.Property == ModeProperty)
-            {
-                if (Mode == SimpleThemeMode.Dark)
-                {
-                    (Loaded as Styles)![1] = _simpleDark[0];
-                }
-                else
-                {
-                    (Loaded as Styles)![1] = _simpleLight[0];
-                }
-            }
-        }
-
-        private void InitStyles(Uri baseUri)
-        {
-            _sharedStyles = new Styles
-            {
-                new StyleInclude(baseUri)
-                {
-                    Source = new Uri("avares://Avalonia.Themes.Simple/Controls/SimpleControls.xaml")
-                },
-                new StyleInclude(baseUri)
-                {
-                    Source = new Uri("avares://Avalonia.Themes.Simple/Accents/Base.xaml")
-                }
-            };
-            _simpleLight = new Styles
-            {
-                new StyleInclude(baseUri)
-                {
-                    Source = new Uri("avares://Avalonia.Themes.Simple/Accents/BaseLight.xaml")
-                }
-            };
-
-            _simpleDark = new Styles
-            {
-                new StyleInclude(baseUri)
-                {
-                    Source = new Uri("avares://Avalonia.Themes.Simple/Accents/BaseDark.xaml")
-                }
-            };
-        }
-
     }
 }

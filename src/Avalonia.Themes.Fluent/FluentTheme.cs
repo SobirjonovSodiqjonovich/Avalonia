@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using Avalonia.Controls;
 using Avalonia.Markup.Xaml;
+using Avalonia.Markup.Xaml.MarkupExtensions;
 using Avalonia.Markup.Xaml.Styling;
 using Avalonia.Styling;
 
@@ -9,12 +10,6 @@ using Avalonia.Styling;
 
 namespace Avalonia.Themes.Fluent
 {
-    public enum FluentThemeMode
-    {
-        Light,
-        Dark,
-    }
-
     public enum DensityStyle
     {
         Normal,
@@ -27,10 +22,7 @@ namespace Avalonia.Themes.Fluent
     public class FluentTheme : AvaloniaObject, IStyle, IResourceProvider
     {
         private readonly Uri _baseUri;
-        private Styles _fluentDark = new();
-        private Styles _fluentLight = new();
-        private Styles _sharedStyles = new();
-        private Styles _densityStyles = new();
+        private IStyle? _densityStyles;
         private bool _isLoading;
         private IStyle? _loaded;
 
@@ -41,7 +33,6 @@ namespace Avalonia.Themes.Fluent
         public FluentTheme(Uri baseUri)
         {
             _baseUri = baseUri;
-            InitStyles(baseUri);
         }
 
         /// <summary>
@@ -53,24 +44,11 @@ namespace Avalonia.Themes.Fluent
             var ctx  = serviceProvider.GetService(typeof(IUriContext)) as IUriContext
                  ?? throw new NullReferenceException("Unable retrive UriContext");
             _baseUri = ctx.BaseUri;
-            InitStyles(_baseUri);
         }
-
-        public static readonly StyledProperty<FluentThemeMode> ModeProperty =
-            AvaloniaProperty.Register<FluentTheme, FluentThemeMode>(nameof(Mode));
 
         public static readonly StyledProperty<DensityStyle> DensityStyleProperty =
             AvaloniaProperty.Register<FluentTheme, DensityStyle>(nameof(DensityStyle));
-
-        /// <summary>
-        /// Gets or sets the mode of the fluent theme (light, dark).
-        /// </summary>
-        public FluentThemeMode Mode
-        {
-            get => GetValue(ModeProperty);
-            set => SetValue(ModeProperty, value);
-        }
-
+        
         /// <summary>
         /// Gets or sets the density style of the fluent theme (normal, compact).
         /// </summary>
@@ -90,30 +68,16 @@ namespace Avalonia.Themes.Fluent
                 // it will be applied later in Loaded getter.
                 return;
             }
-            
-            if (change.Property == ModeProperty)
-            {
-                if (Mode == FluentThemeMode.Dark)
-                {
-                    (Loaded as Styles)![1] = _fluentDark[0];
-                    (Loaded as Styles)![2] = _fluentDark[1];
-                }
-                else
-                {
-                    (Loaded as Styles)![1] = _fluentLight[0];
-                    (Loaded as Styles)![2] = _fluentLight[1];
-                }
-            }
 
             if (change.Property == DensityStyleProperty)
             {
                 if (DensityStyle == DensityStyle.Compact)
                 {
-                    (Loaded as Styles)!.Add(_densityStyles[0]);
+                    (Loaded as Styles)!.Add(_densityStyles);
                 }
                 else if (DensityStyle == DensityStyle.Normal)
                 {
-                    (Loaded as Styles)!.Remove(_densityStyles[0]);
+                    (Loaded as Styles)!.Remove(_densityStyles);
                 }
             }
         }
@@ -131,18 +95,26 @@ namespace Avalonia.Themes.Fluent
                 {
                     _isLoading = true;
 
-                    if (Mode == FluentThemeMode.Light)
+                    var style = new Styles();
+                    style.Resources.MergedDictionaries.Add(new ResourceInclude(_baseUri)
                     {
-                        _loaded = new Styles() { _sharedStyles , _fluentLight[0], _fluentLight[1] };
-                    }
-                    else if (Mode == FluentThemeMode.Dark)
+                        Source = new Uri("avares://Avalonia.Themes.Fluent/Accents/Base.xaml")
+                    });
+                    style.Add(new StyleInclude(_baseUri)
                     {
-                        _loaded = new Styles() { _sharedStyles, _fluentDark[0], _fluentDark[1] };
-                    }
+                        Source = new Uri("avares://Avalonia.Themes.Fluent/Controls/FluentControls.xaml")
+                    });
 
+                    _loaded = style;
+
+                    _densityStyles ??= new StyleInclude(_baseUri)
+                    {
+                        Source = new Uri("avares://Avalonia.Themes.Fluent/DensityStyles/Compact.xaml")
+                    };
+                    
                     if (DensityStyle == DensityStyle.Compact)
                     {
-                        (_loaded as Styles)!.Add(_densityStyles[0]);
+                        (_loaded as Styles)!.Add(_densityStyles);
                     }
 
                     _isLoading = false;
@@ -176,11 +148,11 @@ namespace Avalonia.Themes.Fluent
 
         public SelectorMatchResult TryAttach(IStyleable target, object? host) => Loaded.TryAttach(target, host);
 
-        public bool TryGetResource(object key, out object? value)
+        public bool TryGetResource(object key, ThemeVariant? theme, out object? value)
         {
             if (!_isLoading && Loaded is IResourceProvider p)
             {
-                return p.TryGetResource(key, out value);
+                return p.TryGetResource(key, theme, out value);
             }
 
             value = null;
@@ -188,57 +160,7 @@ namespace Avalonia.Themes.Fluent
         }
 
         void IResourceProvider.AddOwner(IResourceHost owner) => (Loaded as IResourceProvider)?.AddOwner(owner);
+
         void IResourceProvider.RemoveOwner(IResourceHost owner) => (Loaded as IResourceProvider)?.RemoveOwner(owner);
-
-        private void InitStyles(Uri baseUri)
-        {
-            _sharedStyles = new Styles
-            {
-                new StyleInclude(baseUri)
-                {
-                    Source = new Uri("avares://Avalonia.Themes.Fluent/Accents/AccentColors.xaml")
-                },
-                new StyleInclude(baseUri)
-                {
-                    Source = new Uri("avares://Avalonia.Themes.Fluent/Accents/Base.xaml")
-                },
-                new StyleInclude(baseUri)
-                {
-                    Source = new Uri("avares://Avalonia.Themes.Fluent/Controls/FluentControls.xaml")
-                }
-            };
-
-            _fluentLight = new Styles
-            {
-                new StyleInclude(baseUri)
-                {
-                    Source = new Uri("avares://Avalonia.Themes.Fluent/Accents/BaseLight.xaml")
-                },
-                new StyleInclude(baseUri)
-                {
-                    Source = new Uri("avares://Avalonia.Themes.Fluent/Accents/FluentControlResourcesLight.xaml")
-                }
-            };
-
-            _fluentDark = new Styles
-            {
-                new StyleInclude(baseUri)
-                {
-                    Source = new Uri("avares://Avalonia.Themes.Fluent/Accents/BaseDark.xaml")
-                },
-                new StyleInclude(baseUri)
-                {
-                    Source = new Uri("avares://Avalonia.Themes.Fluent/Accents/FluentControlResourcesDark.xaml")
-                }
-            };
-            
-            _densityStyles = new Styles
-            {
-                new StyleInclude(baseUri)
-                {
-                    Source = new Uri("avares://Avalonia.Themes.Fluent/DensityStyles/Compact.xaml")
-                }
-            };
-        }
     }
 }
