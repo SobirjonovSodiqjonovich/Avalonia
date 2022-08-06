@@ -98,7 +98,7 @@ namespace Avalonia.Themes.Fluent
                     var style = new Styles();
                     style.Resources.MergedDictionaries.Add(new ResourceInclude(_baseUri)
                     {
-                        Source = new Uri("avares://Avalonia.Themes.Fluent/Accents/Base.xaml")
+                        Source = new Uri("avares://Avalonia.Themes.Fluent/Accents/FluentResources.xaml")
                     });
                     style.Add(new StyleInclude(_baseUri)
                     {

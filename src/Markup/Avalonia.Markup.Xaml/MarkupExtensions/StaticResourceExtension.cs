@@ -1,11 +1,14 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Reflection;
 using Avalonia.Controls;
 using Avalonia.Markup.Data;
 using Avalonia.Markup.Xaml.Converters;
 using Avalonia.Markup.Xaml.XamlIl.Runtime;
 using Avalonia.Styling;
+
+#nullable enable
 
 namespace Avalonia.Markup.Xaml.MarkupExtensions
 {
@@ -20,14 +23,14 @@ namespace Avalonia.Markup.Xaml.MarkupExtensions
             ResourceKey = resourceKey;
         }
 
-        public object ResourceKey { get; set; }
+        public object? ResourceKey { get; set; }
 
         public object ProvideValue(IServiceProvider serviceProvider)
         {
             var stack = serviceProvider.GetService<IAvaloniaXamlIlParentStackProvider>();
             var provideTarget = serviceProvider.GetService<IProvideValueTarget>();
-            var appTheme = AvaloniaLocator.Current.GetService<IApplicationThemeHost>()?.ThemeVariant;
-
+            var themeVariant = ResolveThemeVariant(provideTarget, stack);
+            
             var targetType = provideTarget.TargetProperty switch
             {
                 AvaloniaProperty ap => ap.PropertyType,
@@ -37,21 +40,18 @@ namespace Avalonia.Markup.Xaml.MarkupExtensions
 
             if (provideTarget.TargetObject is Setter setter)
             {
-                targetType = setter.Property.PropertyType;
+                targetType = setter.Property?.PropertyType;
             }
 
             var previousWasControlTheme = false;
-
+            
             // Look upwards though the ambient context for IResourceNodes
             // which might be able to give us the resource.
             foreach (var parent in stack.Parents)
             {
-                if (parent is IResourceNode node)
+                if (parent is IResourceNode node && node.TryGetResource(ResourceKey, themeVariant, out var value))
                 {
-                    if (node.TryGetResource(ResourceKey, appTheme, out var value))
-                    {
-                        return ColorToBrushConverter.Convert(value, targetType);
-                    }
+                    return ColorToBrushConverter.Convert(value, targetType);
                 }
 
                 // HACK: Temporary fix for #8678. Hard-coded to only work for the DevTools main
@@ -62,7 +62,7 @@ namespace Avalonia.Markup.Xaml.MarkupExtensions
                 if (previousWasControlTheme &&
                     parent is ResourceDictionary hack &&
                     hack.Owner?.GetType().FullName == "Avalonia.Diagnostics.Views.MainWindow" &&
-                    hack.Owner.TryGetResource(ResourceKey, out value))
+                    hack.Owner.TryGetResource(ResourceKey, themeVariant, out value))
                 {
                     return ColorToBrushConverter.Convert(value, targetType);
                 }
@@ -84,10 +84,32 @@ namespace Avalonia.Markup.Xaml.MarkupExtensions
             throw new KeyNotFoundException($"Static resource '{ResourceKey}' not found.");
         }
 
-        private object GetValue(IStyledElement control, Type targetType)
+        private object GetValue(IStyledElement control, Type? targetType)
         {
             return ColorToBrushConverter.Convert(control.FindResource(ResourceKey), targetType);
         }
+        
+        private ThemeVariant? ResolveThemeVariant(
+            IProvideValueTarget provideTarget, IAvaloniaXamlIlParentStackProvider stack)
+        {
+            // If target is a control, use its theme variant.
+            if (provideTarget.TargetObject is IThemeStyleable themeStyleable)
+            {
+                return themeStyleable.ThemeVariant;
+            }
+
+            // Check if static resource was invoked inside of the ResourceDictionary.ThemeDictionaries 
+            if (stack.Parents.FirstOrDefault() is ResourceDictionary themeDictionary
+                && stack.Parents.Skip(1).FirstOrDefault() is ResourceDictionary parentDictionary
+                && parentDictionary.ThemeDictionaries
+                    .FirstOrDefault(p => p.Value == themeDictionary).Key is { } key)
+            {
+                return key;
+            }
+
+            // Otherwise fallback to the global app theme.
+            return AvaloniaLocator.Current.GetService<IApplicationThemeHost>()?.ThemeVariant;
+        } 
     }
 }
 

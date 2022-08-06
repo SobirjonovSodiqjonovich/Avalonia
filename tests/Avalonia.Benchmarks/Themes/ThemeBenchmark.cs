@@ -1,11 +1,10 @@
 ﻿using System;
 
 using Avalonia.Controls;
-using Avalonia.Markup.Xaml.Styling;
 using Avalonia.Platform;
 using Avalonia.Styling;
-using Avalonia.Themes.Default;
 using Avalonia.Themes.Fluent;
+using Avalonia.Themes.Simple;
 using Avalonia.UnitTests;
 
 using BenchmarkDotNet.Attributes;
@@ -34,7 +33,7 @@ namespace Avalonia.Benchmarks.Themes
         }
 
         [Benchmark]
-        public bool InitDefaultTheme()
+        public bool InitSimpleTheme()
         {
             UnitTestApplication.Current.Styles[0] = new SimpleTheme(new Uri("resm:Styles?assembly=Avalonia.Benchmarks"));
             return ((IResourceHost)UnitTestApplication.Current).TryGetResource("ThemeAccentColor", ThemeVariant.Dark, out _);
