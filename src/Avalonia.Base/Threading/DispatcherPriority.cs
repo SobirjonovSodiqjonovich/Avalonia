@@ -23,21 +23,6 @@ namespace Avalonia.Threading
         public static readonly DispatcherPriority MinValue = new(0);
 
         /// <summary>
-        /// The job will be processed when the system is idle.
-        /// </summary>
-        [Obsolete("WPF compatibility")] public static readonly DispatcherPriority SystemIdle = MinValue;
-
-        /// <summary>
-        /// The job will be processed when the application is idle.
-        /// </summary>
-        [Obsolete("WPF compatibility")] public static readonly DispatcherPriority ApplicationIdle = MinValue;
-
-        /// <summary>
-        /// The job will be processed after background operations have completed.
-        /// </summary>
-        [Obsolete("WPF compatibility")] public static readonly DispatcherPriority ContextIdle = MinValue;
-
-        /// <summary>
         /// The job will be processed with normal priority.
         /// </summary>
         public static readonly DispatcherPriority Normal = MinValue;
@@ -76,11 +61,6 @@ namespace Avalonia.Threading
         /// The job will be processed with the same priority as render.
         /// </summary>
         public static readonly DispatcherPriority Layout = new(8);
-
-        /// <summary>
-        /// The job will be processed with the same priority as data binding.
-        /// </summary>
-        [Obsolete("WPF compatibility")] public static readonly DispatcherPriority DataBind = MinValue;
 
         /// <summary>
         /// The job will be processed before other asynchronous operations.
