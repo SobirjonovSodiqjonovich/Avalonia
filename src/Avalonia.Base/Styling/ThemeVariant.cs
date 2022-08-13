@@ -1,10 +1,10 @@
 ﻿using System;
 using System.ComponentModel;
 
-namespace Avalonia;
+namespace Avalonia.Styling;
 
 [TypeConverter(typeof(ThemeVariantTypeConverter))]
-public class ThemeVariant
+public class ThemeVariant : IEquatable<ThemeVariant>
 {
     public ThemeVariant(object key)
     {
@@ -31,7 +31,16 @@ public class ThemeVariant
 
     public override bool Equals(object? obj)
     {
+        if (ReferenceEquals(null, obj)) return false;
+        if (ReferenceEquals(this, obj)) return true;
         return obj is ThemeVariant theme && Key.Equals(theme.Key);
+    }
+    
+    public bool Equals(ThemeVariant? obj)
+    {
+        if (ReferenceEquals(null, obj)) return false;
+        if (ReferenceEquals(this, obj)) return true;
+        return Key.Equals(obj.Key);
     }
 
     public override string ToString()

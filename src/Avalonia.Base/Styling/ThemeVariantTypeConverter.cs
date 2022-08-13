@@ -2,7 +2,7 @@
 using System.ComponentModel;
 using System.Globalization;
 
-namespace Avalonia;
+namespace Avalonia.Styling;
 
 public class ThemeVariantTypeConverter : TypeConverter
 {

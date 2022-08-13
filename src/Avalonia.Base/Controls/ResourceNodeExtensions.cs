@@ -1,5 +1,6 @@
 ﻿using System;
 using Avalonia.Reactive;
+using Avalonia.Styling;
 
 #nullable enable
 
@@ -38,9 +39,7 @@ namespace Avalonia.Controls
             control = control ?? throw new ArgumentNullException(nameof(control));
             key = key ?? throw new ArgumentNullException(nameof(key));
 
-            var theme = AvaloniaLocator.Current.GetService<IApplicationThemeHost>()?.ThemeVariant;
-
-            return control.TryFindResource(key, theme, out value);
+            return control.TryFindResource(key, null, out value);
         }
 
         /// <summary>
@@ -98,9 +97,7 @@ namespace Avalonia.Controls
             control = control ?? throw new ArgumentNullException(nameof(control));
             key = key ?? throw new ArgumentNullException(nameof(key));
 
-            var theme = AvaloniaLocator.Current.GetService<IApplicationThemeHost>()?.ThemeVariant;
-            
-            return control.TryGetResource(key, theme, out value);
+            return control.TryGetResource(key, null, out value);
         }
 
         public static IObservable<object?> GetResourceObservable(
@@ -141,7 +138,7 @@ namespace Avalonia.Controls
             protected override void Initialize()
             {
                 _target.ResourcesChanged += ResourcesChanged;
-                if (_target is IThemeStyleable themeStyleable)
+                if (_target is IStyleable themeStyleable)
                 {
                     themeStyleable.ThemeVariantChanged += ThemeVariantChanged;
                 }
@@ -150,7 +147,7 @@ namespace Avalonia.Controls
             protected override void Deinitialize()
             {
                 _target.ResourcesChanged -= ResourcesChanged;
-                if (_target is IThemeStyleable themeStyleable)
+                if (_target is IStyleable themeStyleable)
                 {
                     themeStyleable.ThemeVariantChanged -= ThemeVariantChanged;
                 }
@@ -173,8 +170,8 @@ namespace Avalonia.Controls
 
             private object? GetValue()
             {
-                if (!(_target is IThemeStyleable themeStyleable)
-                    || !themeStyleable.TryFindResource(_key, themeStyleable.ThemeVariant, out var value))
+                if (_target is not IStyleable themeStyleable
+                    || !_target.TryFindResource(_key, themeStyleable.ThemeVariant, out var value))
                 {
                     value = _target.FindResource(_key) ?? AvaloniaProperty.UnsetValue;
                 }
@@ -202,7 +199,7 @@ namespace Avalonia.Controls
                 _target.OwnerChanged += OwnerChanged;
                 _owner = _target.Owner;
 
-                if (_owner is object)
+                if (_owner is not null)
                 {
                     _owner.ResourcesChanged += ResourcesChanged;
                 }
@@ -216,7 +213,7 @@ namespace Avalonia.Controls
 
             protected override void Subscribed(IObserver<object?> observer, bool first)
             {
-                if (_target.Owner is object)
+                if (_target.Owner is not null)
                 {
                     observer.OnNext(GetValue());
                 }
@@ -224,7 +221,7 @@ namespace Avalonia.Controls
 
             private void PublishNext()
             {
-                if (_target.Owner is object)
+                if (_target.Owner is not null)
                 {
                     PublishNext(GetValue());
                 }
@@ -232,24 +229,24 @@ namespace Avalonia.Controls
 
             private void OwnerChanged(object? sender, EventArgs e)
             {
-                if (_owner is object)
+                if (_owner is not null)
                 {
                     _owner.ResourcesChanged -= ResourcesChanged;
                 }
-                if (_owner is IThemeStyleable themeStyleable)
+                if (_owner is IStyleable styleable)
                 {
-                    themeStyleable.ThemeVariantChanged -= ThemeVariantChanged;
+                    styleable.ThemeVariantChanged -= ThemeVariantChanged;
                 }
 
                 _owner = _target.Owner;
 
-                if (_owner is object)
+                if (_owner is not null)
                 {
                     _owner.ResourcesChanged += ResourcesChanged;
                 }
-                if (_owner is IThemeStyleable themeStyleable2)
+                if (_owner is IStyleable styleable2)
                 {
-                    themeStyleable2.ThemeVariantChanged += ThemeVariantChanged;
+                    styleable2.ThemeVariantChanged += ThemeVariantChanged;
                 }
 
                 PublishNext();
@@ -267,9 +264,9 @@ namespace Avalonia.Controls
 
             private object? GetValue()
             {
-                if (!(_target.Owner is IThemeStyleable themeStyleable)
+                if (!(_target.Owner is IStyleable themeStyleable)
                     || themeStyleable.ThemeVariant is null
-                    || !themeStyleable.TryFindResource(_key, themeStyleable.ThemeVariant, out var value))
+                    || !_target.Owner.TryFindResource(_key, themeStyleable.ThemeVariant, out var value))
                 {
                     value = _target.Owner?.FindResource(_key) ?? AvaloniaProperty.UnsetValue;
                 }

@@ -1,13 +1,12 @@
 ﻿using System;
-
 using Avalonia.Controls;
 
-namespace Avalonia;
+namespace Avalonia.Styling;
 
 /// <summary>
-/// Interface for elements that supports dynamic theme.
+/// Interface for a host element with a root theme.
 /// </summary>
-public interface IThemeStyleable : IResourceHost
+public interface IApplicationThemeVariantHost : IResourceHost
 {
     /// <summary>
     /// Gets the UI theme that is used by the control (and its child elements) for resource determination.

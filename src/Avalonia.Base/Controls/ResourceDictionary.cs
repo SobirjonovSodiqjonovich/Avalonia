@@ -5,6 +5,7 @@ using System.Collections.Specialized;
 using System.Linq;
 using Avalonia.Collections;
 using Avalonia.Controls.Templates;
+using Avalonia.Styling;
 
 namespace Avalonia.Controls
 {

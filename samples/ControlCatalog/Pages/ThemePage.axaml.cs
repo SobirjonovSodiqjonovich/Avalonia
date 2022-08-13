@@ -1,6 +1,7 @@
 ﻿using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Markup.Xaml;
+using Avalonia.Styling;
 
 namespace ControlCatalog.Pages
 {
@@ -13,7 +14,7 @@ namespace ControlCatalog.Pages
             AvaloniaXamlLoader.Load(this);
 
             var selector = this.FindControl<ComboBox>("Selector")!;
-            var themeControl = this.FindControl<ThemeControl>("ThemeControl")!;
+            var themeVariantScope = this.FindControl<ThemeVariantScope>("ThemeVariantScope")!;
 
             selector.Items = new[]
             {
@@ -29,11 +30,11 @@ namespace ControlCatalog.Pages
                 var theme = (ThemeVariant)selector.SelectedItem!;
                 if ((string)theme.Key == "Default")
                 {
-                    themeControl.ClearValue(ThemeControl.ThemeVariantProperty);
+                    themeVariantScope.ClearValue(ThemeVariantProperty);
                 }
                 else
                 {
-                    themeControl.ThemeVariant = theme;
+                    themeVariantScope.ThemeVariant = theme;
                 }
             };
         }

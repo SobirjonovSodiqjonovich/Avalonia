@@ -15,8 +15,7 @@ namespace Avalonia.Controls
         ILayoutable,
         IInputElement,
         INamed,
-        IStyledElement,
-        IThemeStyleable
+        IStyledElement
     {
         new IControl? Parent { get; }
     }

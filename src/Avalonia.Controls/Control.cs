@@ -172,10 +172,7 @@ namespace Avalonia.Controls
             get => GetValue(FlowDirectionProperty);
             set => SetValue(FlowDirectionProperty, value);
         }
-
-        ThemeVariant IThemeStyleable.ThemeVariant => GetValue(ThemeControl.ThemeVariantProperty);
-        public event EventHandler? ThemeVariantChanged;
-
+        
         /// <summary>
         /// Occurs when the user has completed a context input gesture, such as a right-click.
         /// </summary>
@@ -550,10 +547,6 @@ namespace Avalonia.Controls
                         child.InvalidateMirrorTransform();
                     }
                 }
-            }
-            else if (change.Property == ThemeControl.ThemeVariantProperty)
-            {
-                ThemeVariantChanged?.Invoke(this, EventArgs.Empty);
             }
         }
 

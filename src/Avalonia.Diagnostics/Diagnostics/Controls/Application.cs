@@ -1,5 +1,6 @@
 ﻿using System;
 using Avalonia.Controls;
+using Avalonia.Styling;
 using Lifetimes = Avalonia.Controls.ApplicationLifetimes;
 using App = Avalonia.Application;
 
@@ -15,7 +16,7 @@ namespace Avalonia.Diagnostics.Controls
         public event EventHandler? Closed;
 
         public static readonly StyledProperty<ThemeVariant> ThemeProperty =
-            ThemeControl.ThemeVariantProperty.AddOwner<Application>();
+            StyledElement.ThemeVariantProperty.AddOwner<Application>();
         
         public Application(App application)
         {

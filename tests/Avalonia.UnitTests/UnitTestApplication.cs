@@ -57,7 +57,7 @@ namespace Avalonia.UnitTests
                 .Bind<IFocusManager>().ToConstant(Services.FocusManager)
                 .Bind<IGlobalClock>().ToConstant(Services.GlobalClock)
                 .BindToSelf<IGlobalStyles>(this)
-                .BindToSelf<IApplicationThemeHost>(this)
+                .BindToSelf<IApplicationThemeVariantHost>(this)
                 .Bind<IInputManager>().ToConstant(Services.InputManager)
                 .Bind<IKeyboardDevice>().ToConstant(Services.KeyboardDevice?.Invoke())
                 .Bind<IKeyboardNavigationHandler>().ToConstant(Services.KeyboardNavigation)

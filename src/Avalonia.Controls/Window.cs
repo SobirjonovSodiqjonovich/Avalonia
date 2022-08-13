@@ -179,10 +179,7 @@ namespace Avalonia.Controls
         /// </summary>
         public static readonly RoutedEvent<RoutedEventArgs> WindowOpenedEvent =
             RoutedEvent.Register<Window, RoutedEventArgs>("WindowOpened", RoutingStrategies.Direct);
-
-        public static readonly StyledProperty<ThemeVariant> ThemeVariantProperty =
-            ThemeControl.ThemeVariantProperty.AddOwner<Application>();
-
+        
         private readonly NameScope _nameScope = new NameScope();
         private object? _dialogResult;
         private readonly Size _maxPlatformClientSize;

@@ -60,11 +60,7 @@ namespace Avalonia.Controls
         /// </summary>
         public static readonly StyledProperty<WindowTransparencyLevel> TransparencyLevelHintProperty =
             AvaloniaProperty.Register<TopLevel, WindowTransparencyLevel>(nameof(TransparencyLevelHint), WindowTransparencyLevel.None);
-
-        /// <inheritdoc cref="ThemeControl.ThemeVariantProperty" />
-        public static readonly StyledProperty<ThemeVariant> ThemeVariantProperty =
-            ThemeControl.ThemeVariantProperty.AddOwner<Application>();
-
+        
         /// <summary>
         /// Defines the <see cref="ActualTransparencyLevel"/> property.
         /// </summary>
@@ -90,7 +86,7 @@ namespace Avalonia.Controls
         private readonly IKeyboardNavigationHandler? _keyboardNavigationHandler;
         private readonly IPlatformRenderInterface? _renderInterface;
         private readonly IGlobalStyles? _globalStyles;
-        private readonly IApplicationThemeHost? _applicationThemeHost;
+        private readonly IApplicationThemeVariantHost? _applicationThemeHost;
         private readonly PointerOverPreProcessor? _pointerOverPreProcessor;
         private readonly IDisposable? _pointerOverPreProcessorSubscription;
         private Size _clientSize;
@@ -156,7 +152,7 @@ namespace Avalonia.Controls
             _keyboardNavigationHandler = TryGetService<IKeyboardNavigationHandler>(dependencyResolver);
             _renderInterface = TryGetService<IPlatformRenderInterface>(dependencyResolver);
             _globalStyles = TryGetService<IGlobalStyles>(dependencyResolver);
-            _applicationThemeHost = TryGetService<IApplicationThemeHost>(dependencyResolver);
+            _applicationThemeHost = TryGetService<IApplicationThemeVariantHost>(dependencyResolver);
 
             Renderer = impl.CreateRenderer(this);
 
@@ -276,7 +272,7 @@ namespace Avalonia.Controls
             set => SetValue(TransparencyBackgroundFallbackProperty, value);
         }
 
-        /// <inheritdoc cref="ThemeControl.ThemeVariant" />
+        /// <inheritdoc cref="IStyleable.ThemeVariant" />
         public ThemeVariant ThemeVariant
         {
             get => GetValue(ThemeVariantProperty);

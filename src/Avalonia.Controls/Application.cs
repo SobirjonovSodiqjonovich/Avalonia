@@ -31,7 +31,7 @@ namespace Avalonia
     /// method.
     /// - Tracks the lifetime of the application.
     /// </remarks>
-    public class Application : AvaloniaObject, IDataContextProvider, IGlobalDataTemplates, IGlobalStyles, IApplicationThemeHost, IApplicationPlatformEvents
+    public class Application : AvaloniaObject, IDataContextProvider, IGlobalDataTemplates, IGlobalStyles, IApplicationThemeVariantHost, IApplicationPlatformEvents
     {
         /// <summary>
         /// The application-global data templates.
@@ -53,9 +53,9 @@ namespace Avalonia
         public static readonly StyledProperty<object?> DataContextProperty =
             StyledElement.DataContextProperty.AddOwner<Application>();
 
-        /// <inheritdoc cref="ThemeControl.ThemeVariantProperty" />
+        /// <inheritdoc cref="StyledElement.ThemeVariantProperty" />
         public static readonly StyledProperty<ThemeVariant> ThemeVariantProperty =
-            ThemeControl.ThemeVariantProperty.AddOwner<Application>();
+            StyledElement.ThemeVariantProperty.AddOwner<Application>();
 
         /// <inheritdoc/>
         public event EventHandler<ResourcesChangedEventArgs>? ResourcesChanged;
@@ -87,7 +87,7 @@ namespace Avalonia
             set { SetValue(DataContextProperty, value); }
         }
 
-        /// <inheritdoc cref="ThemeControl.ThemeVariant" />
+        /// <inheritdoc cref="IStyleable.ThemeVariant" />
         public ThemeVariant ThemeVariant
         {
             get => GetValue(ThemeVariantProperty);
@@ -245,7 +245,7 @@ namespace Avalonia
                 .Bind<IAccessKeyHandler>().ToTransient<AccessKeyHandler>()
                 .Bind<IGlobalDataTemplates>().ToConstant(this)
                 .Bind<IGlobalStyles>().ToConstant(this)
-                .Bind<IApplicationThemeHost>().ToConstant(this)
+                .Bind<IApplicationThemeVariantHost>().ToConstant(this)
                 .Bind<IFocusManager>().ToConstant(FocusManager)
                 .Bind<IInputManager>().ToConstant(InputManager)
                 .Bind<IKeyboardNavigationHandler>().ToTransient<KeyboardNavigationHandler>()

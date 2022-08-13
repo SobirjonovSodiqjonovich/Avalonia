@@ -2,6 +2,7 @@
 using Avalonia.Markup.Data;
 using Avalonia.Markup.Xaml.MarkupExtensions;
 using Avalonia.Media;
+using Avalonia.Styling;
 using Moq;
 using Xunit;
 
@@ -12,11 +13,11 @@ public class ThemeDictionariesTests : XamlTestBase
     [Fact]
     public void DynamicResource_Updated_When_Control_Theme_Changed()
     {
-        var themeControl = (ThemeControl)AvaloniaRuntimeXamlLoader.Load(@"
-<ThemeControl xmlns='https://github.com/avaloniaui'
+        var themeVariantScope = (ThemeVariantScope)AvaloniaRuntimeXamlLoader.Load(@"
+<ThemeVariantScope xmlns='https://github.com/avaloniaui'
               xmlns:x='http://schemas.microsoft.com/winfx/2006/xaml'
               ThemeVariant='Light'>
-    <ThemeControl.Resources>
+    <ThemeVariantScope.Resources>
         <ResourceDictionary>
             <ResourceDictionary.ThemeDictionaries>
                 <ResourceDictionary x:Key='Dark'>
@@ -27,15 +28,15 @@ public class ThemeDictionariesTests : XamlTestBase
                 </ResourceDictionary>
             </ResourceDictionary.ThemeDictionaries>
         </ResourceDictionary>
-    </ThemeControl.Resources>
+    </ThemeVariantScope.Resources>
 
     <Border Name='border' Background='{DynamicResource DemoBackground}'/>
-</ThemeControl>");
-        var border = (Border)themeControl.Child!;
+</ThemeVariantScope>");
+        var border = (Border)themeVariantScope.Child!;
         
         Assert.Equal(Colors.White, ((ISolidColorBrush)border.Background)!.Color);
 
-        themeControl.ThemeVariant = ThemeVariant.Dark;
+        themeVariantScope.ThemeVariant = ThemeVariant.Dark;
 
         Assert.Equal(Colors.Black, ((ISolidColorBrush)border.Background)!.Color);
     }
@@ -43,7 +44,7 @@ public class ThemeDictionariesTests : XamlTestBase
     [Fact]
     public void DynamicResource_Updated_When_Control_Theme_Changed_No_Xaml()
     {
-        var themeControl = new ThemeControl
+        var themeVariantScope = new ThemeVariantScope
         {
             ThemeVariant = ThemeVariant.Light,
             Resources = new ResourceDictionary
@@ -56,14 +57,14 @@ public class ThemeDictionariesTests : XamlTestBase
             },
             Child = new Border()
         };
-        var border = (Border)themeControl.Child!;
+        var border = (Border)themeVariantScope.Child!;
         border[!Border.BackgroundProperty] = new DynamicResourceExtension("DemoBackground");
         
         DelayedBinding.ApplyBindings(border);
         
         Assert.Equal(Colors.White, ((ISolidColorBrush)border.Background)!.Color);
 
-        themeControl.ThemeVariant = ThemeVariant.Dark;
+        themeVariantScope.ThemeVariant = ThemeVariant.Dark;
 
         Assert.Equal(Colors.Black, ((ISolidColorBrush)border.Background)!.Color);
     }
@@ -71,11 +72,11 @@ public class ThemeDictionariesTests : XamlTestBase
     [Fact]
     public void Intermediate_DynamicResource_Updated_When_Control_Theme_Changed()
     {
-        var themeControl = (ThemeControl)AvaloniaRuntimeXamlLoader.Load(@"
-<ThemeControl xmlns='https://github.com/avaloniaui'
+        var themeVariantScope = (ThemeVariantScope)AvaloniaRuntimeXamlLoader.Load(@"
+<ThemeVariantScope xmlns='https://github.com/avaloniaui'
               xmlns:x='http://schemas.microsoft.com/winfx/2006/xaml'
               ThemeVariant='Light'>
-    <ThemeControl.Resources>
+    <ThemeVariantScope.Resources>
         <ResourceDictionary>
             <ResourceDictionary.ThemeDictionaries>
                 <ResourceDictionary x:Key='Dark'>
@@ -87,15 +88,15 @@ public class ThemeDictionariesTests : XamlTestBase
             </ResourceDictionary.ThemeDictionaries>
             <SolidColorBrush x:Key='DemoBackground' Color='{DynamicResource TestColor}' />
         </ResourceDictionary>
-    </ThemeControl.Resources>
+    </ThemeVariantScope.Resources>
 
     <Border Name='border' Background='{DynamicResource DemoBackground}'/>
-</ThemeControl>");
-        var border = (Border)themeControl.Child!;
+</ThemeVariantScope>");
+        var border = (Border)themeVariantScope.Child!;
         
         Assert.Equal(Colors.White, ((ISolidColorBrush)border.Background)!.Color);
 
-        themeControl.ThemeVariant = ThemeVariant.Dark;
+        themeVariantScope.ThemeVariant = ThemeVariant.Dark;
 
         Assert.Equal(Colors.Black, ((ISolidColorBrush)border.Background)!.Color);
     }
@@ -103,11 +104,11 @@ public class ThemeDictionariesTests : XamlTestBase
     [Fact]
     public void Intermediate_StaticResource_Can_Be_Reached_From_ThemeDictionaries()
     {
-        var themeControl = (ThemeControl)AvaloniaRuntimeXamlLoader.Load(@"
-<ThemeControl xmlns='https://github.com/avaloniaui'
+        var themeVariantScope = (ThemeVariantScope)AvaloniaRuntimeXamlLoader.Load(@"
+<ThemeVariantScope xmlns='https://github.com/avaloniaui'
               xmlns:x='http://schemas.microsoft.com/winfx/2006/xaml'
               ThemeVariant='Light'>
-    <ThemeControl.Resources>
+    <ThemeVariantScope.Resources>
         <ResourceDictionary>
             <ResourceDictionary.ThemeDictionaries>
                 <ResourceDictionary x:Key='Dark'>
@@ -120,15 +121,15 @@ public class ThemeDictionariesTests : XamlTestBase
                 </ResourceDictionary>
             </ResourceDictionary.ThemeDictionaries>
         </ResourceDictionary>
-    </ThemeControl.Resources>
+    </ThemeVariantScope.Resources>
 
     <Border Name='border' Background='{DynamicResource DemoBackground}'/>
-</ThemeControl>");
-        var border = (Border)themeControl.Child!;
+</ThemeVariantScope>");
+        var border = (Border)themeVariantScope.Child!;
         
         Assert.Equal(Colors.White, ((ISolidColorBrush)border.Background)!.Color);
 
-        themeControl.ThemeVariant = ThemeVariant.Dark;
+        themeVariantScope.ThemeVariant = ThemeVariant.Dark;
 
         Assert.Equal(Colors.Black, ((ISolidColorBrush)border.Background)!.Color);
     }
@@ -136,11 +137,11 @@ public class ThemeDictionariesTests : XamlTestBase
     [Fact]
     public void StaticResource_Inside_Of_ThemeDictionaries_Should_Use_Same_Theme_Key()
     {
-        var themeControl = (ThemeControl)AvaloniaRuntimeXamlLoader.Load(@"
-<ThemeControl xmlns='https://github.com/avaloniaui'
+        var themeVariantScope = (ThemeVariantScope)AvaloniaRuntimeXamlLoader.Load(@"
+<ThemeVariantScope xmlns='https://github.com/avaloniaui'
               xmlns:x='http://schemas.microsoft.com/winfx/2006/xaml'
               ThemeVariant='Light'>
-    <ThemeControl.Resources>
+    <ThemeVariantScope.Resources>
         <ResourceDictionary>
             <ResourceDictionary.ThemeDictionaries>
                 <ResourceDictionary x:Key='Dark'>
@@ -151,7 +152,7 @@ public class ThemeDictionariesTests : XamlTestBase
                 </ResourceDictionary>
             </ResourceDictionary.ThemeDictionaries>
         </ResourceDictionary>
-    </ThemeControl.Resources>
+    </ThemeVariantScope.Resources>
 
     <Border Name='border' Background='{DynamicResource DemoBackground}'>
         <Border.Resources>
@@ -167,42 +168,14 @@ public class ThemeDictionariesTests : XamlTestBase
             </ResourceDictionary>
         </Border.Resources>
     </Border>
-</ThemeControl>");
-        var border = (Border)themeControl.Child!;
+</ThemeVariantScope>");
+        var border = (Border)themeVariantScope.Child!;
         
         Assert.Equal(Colors.White, ((ISolidColorBrush)border.Background)!.Color);
 
-        themeControl.ThemeVariant = ThemeVariant.Dark;
+        themeVariantScope.ThemeVariant = ThemeVariant.Dark;
 
         Assert.Equal(Colors.Black, ((ISolidColorBrush)border.Background)!.Color);
-    }
-
-    [Fact]
-    public void StaticResource_Outside_Of_ThemeDictionaries_Should_Use_Application_ThemeVariant()
-    {
-        using (AvaloniaLocator.EnterScope())
-        {
-            var applicationThemeHost = new Mock<IApplicationThemeHost>();
-            applicationThemeHost.SetupGet(h => h.ThemeVariant).Returns(ThemeVariant.Dark);
-            AvaloniaLocator.CurrentMutable.Bind<IApplicationThemeHost>().ToConstant(applicationThemeHost.Object);
-
-            var dictionary = (ResourceDictionary)AvaloniaRuntimeXamlLoader.Load(@"
-<ResourceDictionary xmlns='https://github.com/avaloniaui'
-                    xmlns:x='http://schemas.microsoft.com/winfx/2006/xaml'>
-    <ResourceDictionary.ThemeDictionaries>
-        <ResourceDictionary x:Key='Light'>
-            <Color x:Key='Color'>Blue</Color>
-        </ResourceDictionary>
-        <ResourceDictionary x:Key='Dark'>
-            <Color x:Key='Color'>Red</Color>
-        </ResourceDictionary>
-    </ResourceDictionary.ThemeDictionaries>
-    <SolidColorBrush x:Key='Brush' Color='{StaticResource Color}' />
-</ResourceDictionary>");
-
-            var brush = Assert.IsType<SolidColorBrush>(dictionary["Brush"]);
-            Assert.Equal(Colors.Red, brush.Color);
-        }
     }
 
     [Fact]
@@ -210,15 +183,15 @@ public class ThemeDictionariesTests : XamlTestBase
     {
         using (AvaloniaLocator.EnterScope())
         {
-            var applicationThemeHost = new Mock<IApplicationThemeHost>();
+            var applicationThemeHost = new Mock<IApplicationThemeVariantHost>();
             applicationThemeHost.SetupGet(h => h.ThemeVariant).Returns(ThemeVariant.Dark);
-            AvaloniaLocator.CurrentMutable.Bind<IApplicationThemeHost>().ToConstant(applicationThemeHost.Object);
+            AvaloniaLocator.CurrentMutable.Bind<IApplicationThemeVariantHost>().ToConstant(applicationThemeHost.Object);
 
-            var themeControl = (ThemeControl)AvaloniaRuntimeXamlLoader.Load(@"
-<ThemeControl xmlns='https://github.com/avaloniaui'
+            var themeVariantScope = (ThemeVariantScope)AvaloniaRuntimeXamlLoader.Load(@"
+<ThemeVariantScope xmlns='https://github.com/avaloniaui'
               xmlns:x='http://schemas.microsoft.com/winfx/2006/xaml'
               ThemeVariant='Light'>
-    <ThemeControl.Resources>
+    <ThemeVariantScope.Resources>
         <ResourceDictionary>
             <ResourceDictionary.ThemeDictionaries>
                 <ResourceDictionary x:Key='Dark'>
@@ -229,13 +202,13 @@ public class ThemeDictionariesTests : XamlTestBase
                 </ResourceDictionary>
             </ResourceDictionary.ThemeDictionaries>
         </ResourceDictionary>
-    </ThemeControl.Resources>
+    </ThemeVariantScope.Resources>
 
     <Border Name='border' Background='{StaticResource DemoBackground}'/>
-</ThemeControl>");
-            var border = (Border)themeControl.Child!;
+</ThemeVariantScope>");
+            var border = (Border)themeVariantScope.Child!;
 
-            themeControl.ThemeVariant = ThemeVariant.Light;
+            themeVariantScope.ThemeVariant = ThemeVariant.Light;
             Assert.Equal(Colors.White, ((ISolidColorBrush)border.Background)!.Color);
         }
     }
@@ -243,8 +216,8 @@ public class ThemeDictionariesTests : XamlTestBase
     [Fact]
     public void Inner_ThemeDictionaries_Works_Properly()
     {
-        var themeControl = (ThemeControl)AvaloniaRuntimeXamlLoader.Load(@"
-<ThemeControl xmlns='https://github.com/avaloniaui'
+        var themeVariantScope = (ThemeVariantScope)AvaloniaRuntimeXamlLoader.Load(@"
+<ThemeVariantScope xmlns='https://github.com/avaloniaui'
               xmlns:x='http://schemas.microsoft.com/winfx/2006/xaml'
               ThemeVariant='Light'>
     <Border Name='border' Background='{DynamicResource DemoBackground}'>
@@ -261,12 +234,12 @@ public class ThemeDictionariesTests : XamlTestBase
             </ResourceDictionary>
         </Border.Resources>
     </Border>
-</ThemeControl>");
-        var border = (Border)themeControl.Child!;
+</ThemeVariantScope>");
+        var border = (Border)themeVariantScope.Child!;
         
         Assert.Equal(Colors.White, ((ISolidColorBrush)border.Background)!.Color);
 
-        themeControl.ThemeVariant = ThemeVariant.Dark;
+        themeVariantScope.ThemeVariant = ThemeVariant.Dark;
 
         Assert.Equal(Colors.Black, ((ISolidColorBrush)border.Background)!.Color);
     }
@@ -274,11 +247,11 @@ public class ThemeDictionariesTests : XamlTestBase
     [Fact]
     public void Inner_Resource_Can_Reference_Parent_ThemeDictionaries()
     {
-        var themeControl = (ThemeControl)AvaloniaRuntimeXamlLoader.Load(@"
-<ThemeControl xmlns='https://github.com/avaloniaui'
+        var themeVariantScope = (ThemeVariantScope)AvaloniaRuntimeXamlLoader.Load(@"
+<ThemeVariantScope xmlns='https://github.com/avaloniaui'
               xmlns:x='http://schemas.microsoft.com/winfx/2006/xaml'
               ThemeVariant='Light'>
-    <ThemeControl.Resources>
+    <ThemeVariantScope.Resources>
         <ResourceDictionary>
             <ResourceDictionary.ThemeDictionaries>
                 <ResourceDictionary x:Key='Dark'>
@@ -289,7 +262,7 @@ public class ThemeDictionariesTests : XamlTestBase
                 </ResourceDictionary>
             </ResourceDictionary.ThemeDictionaries>
         </ResourceDictionary>
-    </ThemeControl.Resources>
+    </ThemeVariantScope.Resources>
 
     <Border Name='border' Background='{DynamicResource DemoBackground}'>
         <Border.Resources>
@@ -298,12 +271,12 @@ public class ThemeDictionariesTests : XamlTestBase
             </ResourceDictionary>
         </Border.Resources>
     </Border>
-</ThemeControl>");
-        var border = (Border)themeControl.Child!;
+</ThemeVariantScope>");
+        var border = (Border)themeVariantScope.Child!;
         
         Assert.Equal(Colors.White, ((ISolidColorBrush)border.Background)!.Color);
 
-        themeControl.ThemeVariant = ThemeVariant.Dark;
+        themeVariantScope.ThemeVariant = ThemeVariant.Dark;
 
         Assert.Equal(Colors.Black, ((ISolidColorBrush)border.Background)!.Color);
     }
@@ -311,11 +284,11 @@ public class ThemeDictionariesTests : XamlTestBase
     [Fact]
     public void DynamicResource_Can_Access_Resources_Outside_Of_ThemeDictionaries()
     {
-        var themeControl = (ThemeControl)AvaloniaRuntimeXamlLoader.Load(@"
-<ThemeControl xmlns='https://github.com/avaloniaui'
+        var themeVariantScope = (ThemeVariantScope)AvaloniaRuntimeXamlLoader.Load(@"
+<ThemeVariantScope xmlns='https://github.com/avaloniaui'
               xmlns:x='http://schemas.microsoft.com/winfx/2006/xaml'
               ThemeVariant='Light'>
-    <ThemeControl.Resources>
+    <ThemeVariantScope.Resources>
         <ResourceDictionary>
             <ResourceDictionary.ThemeDictionaries>
                 <ResourceDictionary x:Key='Dark'>
@@ -328,15 +301,15 @@ public class ThemeDictionariesTests : XamlTestBase
             <Color x:Key='TestColor1'>Black</Color>
             <Color x:Key='TestColor2'>White</Color>
         </ResourceDictionary>
-    </ThemeControl.Resources>
+    </ThemeVariantScope.Resources>
 
     <Border Name='border' Background='{DynamicResource DemoBackground}' />
-</ThemeControl>");
-        var border = (Border)themeControl.Child!;
+</ThemeVariantScope>");
+        var border = (Border)themeVariantScope.Child!;
         
         Assert.Equal(Colors.White, ((ISolidColorBrush)border.Background)!.Color);
 
-        themeControl.ThemeVariant = ThemeVariant.Dark;
+        themeVariantScope.ThemeVariant = ThemeVariant.Dark;
 
         Assert.Equal(Colors.Black, ((ISolidColorBrush)border.Background)!.Color);
     }
@@ -346,16 +319,16 @@ public class ThemeDictionariesTests : XamlTestBase
     {
         // It might be a nice feature, but neither Avalonia nor UWP supports it.
         // Better to expect this limitation with a unit test. 
-        var themeControl = (ThemeControl)AvaloniaRuntimeXamlLoader.Load(@"
-<ThemeControl xmlns='https://github.com/avaloniaui'
+        var themeVariantScope = (ThemeVariantScope)AvaloniaRuntimeXamlLoader.Load(@"
+<ThemeVariantScope xmlns='https://github.com/avaloniaui'
               xmlns:x='http://schemas.microsoft.com/winfx/2006/xaml'
               ThemeVariant='Light'>
-    <ThemeControl.Resources>
+    <ThemeVariantScope.Resources>
         <ResourceDictionary>
             <Color x:Key='TestColor'>Red</Color>
             <SolidColorBrush x:Key='DemoBackground' Color='{DynamicResource TestColor}' />
         </ResourceDictionary>
-    </ThemeControl.Resources>
+    </ThemeVariantScope.Resources>
 
     <Border Name='border' Background='{DynamicResource DemoBackground}'>
         <Border.Resources>
@@ -371,12 +344,12 @@ public class ThemeDictionariesTests : XamlTestBase
             </ResourceDictionary>
         </Border.Resources>
     </Border>
-</ThemeControl>");
-        var border = (Border)themeControl.Child!;
+</ThemeVariantScope>");
+        var border = (Border)themeVariantScope.Child!;
         
         Assert.Equal(Colors.Red, ((ISolidColorBrush)border.Background)!.Color);
 
-        themeControl.ThemeVariant = ThemeVariant.Dark;
+        themeVariantScope.ThemeVariant = ThemeVariant.Dark;
 
         Assert.Equal(Colors.Red, ((ISolidColorBrush)border.Background)!.Color);
     }
@@ -384,11 +357,11 @@ public class ThemeDictionariesTests : XamlTestBase
     [Fact]
     public void Custom_Theme_Can_Be_Defined_In_ThemeDictionaries()
     {
-        var themeControl = (ThemeControl)AvaloniaRuntimeXamlLoader.Load(@"
-<ThemeControl xmlns='https://github.com/avaloniaui'
+        var themeVariantScope = (ThemeVariantScope)AvaloniaRuntimeXamlLoader.Load(@"
+<ThemeVariantScope xmlns='https://github.com/avaloniaui'
               xmlns:x='http://schemas.microsoft.com/winfx/2006/xaml'
               ThemeVariant='Light'>
-    <ThemeControl.Resources>
+    <ThemeVariantScope.Resources>
         <ResourceDictionary>
             <ResourceDictionary.ThemeDictionaries>
                 <ResourceDictionary x:Key='Dark'>
@@ -402,42 +375,69 @@ public class ThemeDictionariesTests : XamlTestBase
                 </ResourceDictionary>
             </ResourceDictionary.ThemeDictionaries>
         </ResourceDictionary>
-    </ThemeControl.Resources>
+    </ThemeVariantScope.Resources>
 
     <Border Name='border' Background='{DynamicResource DemoBackground}'/>
-</ThemeControl>");
-        var border = (Border)themeControl.Child!;
+</ThemeVariantScope>");
+        var border = (Border)themeVariantScope.Child!;
         
-        themeControl.ThemeVariant = new ThemeVariant("Custom");
+        themeVariantScope.ThemeVariant = new ThemeVariant("Custom");
 
         Assert.Equal(Colors.Pink, ((ISolidColorBrush)border.Background)!.Color);
     }
     
     [Fact]
-    public void Custom_Theme_Fallbacks_To_Inherit_Theme()
+    public void Custom_Theme_Fallbacks_To_Inherit_Theme_DynamicResource()
     {
-        var themeControl = (ThemeControl)AvaloniaRuntimeXamlLoader.Load(@"
-<ThemeControl xmlns='https://github.com/avaloniaui'
+        var themeVariantScope = (ThemeVariantScope)AvaloniaRuntimeXamlLoader.Load(@"
+<ThemeVariantScope xmlns='https://github.com/avaloniaui'
               xmlns:x='http://schemas.microsoft.com/winfx/2006/xaml'
               ThemeVariant='Light'>
-    <ThemeControl.Resources>
-        <ResourceDictionary>
+   <ThemeVariantScope.Resources>
+        <ResourceDictionary>                
             <ResourceDictionary.ThemeDictionaries>
                 <ResourceDictionary x:Key='Dark'>
                     <SolidColorBrush x:Key='DemoBackground'>Black</SolidColorBrush>
                 </ResourceDictionary>
-                <ResourceDictionary x:Key='Light'>
-                    <SolidColorBrush x:Key='DemoBackground'>White</SolidColorBrush>
+            </ResourceDictionary.ThemeDictionaries>
+        </ResourceDictionary>
+    </ThemeVariantScope.Resources> 
+    <Border Background='{DynamicResource DemoBackground}' />
+</ThemeVariantScope>");
+        var border = (Border)themeVariantScope.Child!;
+        
+        themeVariantScope.ThemeVariant = new ThemeVariant("Custom", ThemeVariant.Dark);
+
+        Assert.Equal(Colors.Black, ((ISolidColorBrush)border.Background)!.Color);
+    }
+    
+    [Fact]
+    public void Custom_Theme_Fallbacks_To_Inherit_Theme_StaticResource()
+    {
+        var themeVariantScope = (ThemeVariantScope)AvaloniaRuntimeXamlLoader.Load(@"
+<ThemeVariantScope xmlns='https://github.com/avaloniaui'
+              xmlns:x='http://schemas.microsoft.com/winfx/2006/xaml'>
+    <ThemeVariantScope.ThemeVariant>
+        <ThemeVariant>
+            <x:Arguments>
+                <x:String>Custom</x:String>
+                <ThemeVariant>Dark</ThemeVariant>
+            </x:Arguments>
+        </ThemeVariant>
+    </ThemeVariantScope.ThemeVariant>
+   <ThemeVariantScope.Resources>
+        <ResourceDictionary>                
+            <ResourceDictionary.ThemeDictionaries>
+                <ResourceDictionary x:Key='Dark'>
+                    <SolidColorBrush x:Key='DemoBackground'>Black</SolidColorBrush>
                 </ResourceDictionary>
             </ResourceDictionary.ThemeDictionaries>
         </ResourceDictionary>
-    </ThemeControl.Resources>
+    </ThemeVariantScope.Resources> 
 
-    <Border Name='border' Background='{DynamicResource DemoBackground}'/>
-</ThemeControl>");
-        var border = (Border)themeControl.Child!;
-        
-        themeControl.ThemeVariant = new ThemeVariant("Custom", ThemeVariant.Dark);
+    <Border Background='{StaticResource DemoBackground}' />
+</ThemeVariantScope>");
+        var border = (Border)themeVariantScope.Child!;
 
         Assert.Equal(Colors.Black, ((ISolidColorBrush)border.Background)!.Color);
     }

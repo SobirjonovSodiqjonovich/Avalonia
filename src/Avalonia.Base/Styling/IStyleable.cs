@@ -32,6 +32,16 @@ namespace Avalonia.Styling
         ControlTheme? GetEffectiveTheme();
 
         /// <summary>
+        /// Gets the UI theme that is used by the control (and its child elements) for resource determination.
+        /// </summary>
+        ThemeVariant ThemeVariant { get; }
+
+        /// <summary>
+        /// Raised when the theme is changed on the element or an ancestor of the element.
+        /// </summary>
+        event EventHandler? ThemeVariantChanged;
+        
+        /// <summary>
         /// Notifies the element that a style has been applied.
         /// </summary>
         /// <param name="instance">The style instance.</param>

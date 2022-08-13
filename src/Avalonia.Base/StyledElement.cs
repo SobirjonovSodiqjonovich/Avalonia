@@ -60,6 +60,15 @@ namespace Avalonia
         public static readonly StyledProperty<ControlTheme?> ThemeProperty =
             AvaloniaProperty.Register<StyledElement, ControlTheme?>(nameof(Theme));
 
+        /// <summary>
+        /// Defines the <see cref="ThemeVariant"/> property.
+        /// </summary>
+        public static readonly StyledProperty<ThemeVariant> ThemeVariantProperty =
+            AvaloniaProperty.Register<StyledElement, ThemeVariant>(
+                nameof(ThemeVariant),
+                inherits: true,
+                defaultValue: ThemeVariant.Light);
+        
         private static readonly ControlTheme s_invalidTheme = new ControlTheme();
         private int _initCount;
         private string? _name;
@@ -245,6 +254,10 @@ namespace Avalonia
             get => GetValue(ThemeProperty);
             set => SetValue(ThemeProperty, value);
         }
+
+        ThemeVariant IStyleable.ThemeVariant => GetValue(ThemeVariantProperty);
+
+        public event EventHandler? ThemeVariantChanged;
 
         /// <summary>
         /// Gets the styled element's logical children.
@@ -658,6 +671,10 @@ namespace Avalonia
                 }
 
                 InvalidateStyles();
+            }
+            else if (change.Property == ThemeVariantProperty)
+            {
+                ThemeVariantChanged?.Invoke(this, EventArgs.Empty);
             }
         }
 

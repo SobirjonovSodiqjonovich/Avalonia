@@ -54,7 +54,7 @@
     </ResourceDictionary>
   </UserControl.Resources>
 
-  <ThemeControl x:Name="ThemeControl">
+  <ThemeVariantScope x:Name="ThemeVariantScope">
     <Border Background="{DynamicResource DemoBackground}"
             VerticalAlignment="Top"
             HorizontalAlignment="Left"
@@ -75,5 +75,5 @@
         <Button Grid.Column="1" Grid.Row="6" Content="Login" HorizontalAlignment="Stretch" />
       </Grid>
     </Border>
-  </ThemeControl>
+  </ThemeVariantScope>
 </UserControl>
