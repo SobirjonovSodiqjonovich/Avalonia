@@ -27,39 +27,6 @@ namespace Avalonia.Collections
         /// the index in the collection and the item.
         /// </param>
         /// <param name="reset">
-        /// An action called when the collection is reset.
-        /// </param>
-        /// <param name="weakSubscription">
-        /// Indicates if a weak subscription should be used to track changes to the collection.
-        /// </param>
-        /// <returns>A disposable used to terminate the subscription.</returns>
-        public static IDisposable ForEachItem<TKey, TValue>(
-            this IAvaloniaReadOnlyDictionary<TKey, TValue> collection,
-            Action<TValue> added,
-            Action<TValue> removed,
-            Action reset,
-            bool weakSubscription = false)
-            where TKey : notnull
-        {
-            return collection.ForEachItem((_, i) => added(i), (_, i) => removed(i), reset, weakSubscription);
-        }
-
-        /// <summary>
-        /// Invokes an action for each item in a collection and subsequently each item added or
-        /// removed from the collection.
-        /// </summary>
-        /// <typeparam name="T">The type of the collection items.</typeparam>
-        /// <param name="collection">The collection.</param>
-        /// <param name="added">
-        /// An action called initially for each item in the collection and subsequently for each
-        /// item added to the collection. The parameters passed are the index in the collection and
-        /// the item.
-        /// </param>
-        /// <param name="removed">
-        /// An action called for each item removed from the collection. The parameters passed are
-        /// the index in the collection and the item.
-        /// </param>
-        /// <param name="reset">
         /// An action called when the collection is reset. This will be followed by calls to 
         /// <paramref name="added"/> for each item present in the collection after the reset.
         /// </param>

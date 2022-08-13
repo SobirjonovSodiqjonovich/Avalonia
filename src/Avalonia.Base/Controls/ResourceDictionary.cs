@@ -99,14 +99,14 @@ namespace Avalonia.Controls
                 {
                     _themeDictionary = new AvaloniaDictionary<ThemeVariant, IResourceProvider>();
                     _themeDictionary.ForEachItem(
-                        x =>
+                        (_, x) =>
                         {
                             if (Owner is object)
                             {
                                 x.AddOwner(Owner);
                             }
                         },
-                        x =>
+                        (_, x) =>
                         {
                             if (Owner is object)
                             {
